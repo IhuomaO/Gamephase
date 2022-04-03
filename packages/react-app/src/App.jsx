@@ -60,7 +60,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -484,7 +484,9 @@ function App(props) {
   }
 
   const buyTokensEvents = useEventListener(readContracts, "Vendor", "BuyTokens", localProvider, 1);
+  const sellTokensEvents = useEventListener(readContracts, "Vendor", "SellTokens", localProvider, 1);
   console.log("📟 buyTokensEvents:", buyTokensEvents);
+  console.log("📟 sellTokensEvents:", sellTokensEvents);
 
   const [tokenBuyAmount, setTokenBuyAmount] = useState({
     valid: false,
@@ -639,7 +641,7 @@ function App(props) {
             
             
             {/*Extra UI for buying the tokens back from the user using "approve" and "sellTokens"
-
+                */}
             <Divider />
             <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
               <Card title="Sell Tokens">
@@ -715,7 +717,7 @@ function App(props) {
 
               </Card>
             </div>
-            */}
+        
             <div style={{ padding: 8, marginTop: 32 }}>
               <div>Vendor Token Balance:</div>
               <Balance balance={vendorTokenBalance} fontSize={64} />
@@ -730,6 +732,24 @@ function App(props) {
               <div>Buy Token Events:</div>
               <List
                 dataSource={buyTokensEvents}
+                renderItem={item => {
+                  return (
+                    <List.Item key={item.blockNumber + item.blockHash}>
+                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> paid
+                      <Balance balance={item.args[1]} />
+                      ETH to get
+                      <Balance balance={item.args[2]} />
+                      Tokens
+                    </List.Item>
+                  );
+                }}
+              />
+            </div>
+
+            <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
+              <div>Sell Token Events:</div>
+              <List
+                dataSource={sellTokensEvents}
                 renderItem={item => {
                   return (
                     <List.Item key={item.blockNumber + item.blockHash}>
