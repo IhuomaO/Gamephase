@@ -17,20 +17,15 @@
 
 🧫 Everything starts by ✏️ Editing `YourToken.sol` in `packages/hardhat/contracts`
 
----
 
 ### Checkpoint 0: 📦 install 📚
 
-```bash
 git clone https://github.com/scaffold-eth/scaffold-eth-challenges challenge-2-token-vendor
 cd challenge-2-token-vendor
 git checkout challenge-2-token-vendor
 yarn install
-```
 
 🔏 Edit your smart contract `YourToken.sol` in `packages/hardhat/contracts`
-
----
 
 ### Checkpoint 1: 🔭 Environment 📺
 
@@ -48,7 +43,6 @@ You'll have three terminals up for:
 
 > ignore any warnings, we'll get to that...
 
----
 
 ### Checkpoint 2: 🏵Your Token 💵
 
@@ -67,7 +61,6 @@ You'll have three terminals up for:
 
 (Use an incognito window to create a new address and try sending to that new address. Use the `transfer()` function in the `Debug Contracts` tab.)
 
----
 
 ### Checkpoint 3: ⚖️ Vendor 🤖
 
@@ -75,9 +68,8 @@ You'll have three terminals up for:
 
 Use a price variable named `tokensPerEth` set to **100**:
 
-```solidity
 uint256 public constant tokensPerEth = 100;
-```
+
 
 > 📝 The `buyTokens()` function in `Vendor.sol` should use `msg.value` and `tokensPerEth` to calculate an amount of tokens to `yourToken.transfer()` to `msg.sender`.
 
@@ -99,9 +91,8 @@ Edit `deploy/01_deploy_vendor.js` to deploy the `Vendor` (uncomment Vendor deplo
 
 > ✏️ Then, edit `deploy/01_deploy_vendor.js` to transfer 1000 tokens to `vendor.address`.
 
-```js
+
 await yourToken.transfer( vendor.address, ethers.utils.parseEther("1000") );
-```
 
 > You can `yarn deploy --reset` to deploy your contract until you get it right.
 
@@ -118,9 +109,7 @@ await yourToken.transfer( vendor.address, ethers.utils.parseEther("1000") );
 
 In `deploy/01_deploy_vendor.js` you will need to call `transferOwnership()` on the `Vendor` to make *your frontend address* the `owner`:
 
-```js
 await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
-```
 
 #### 🥅 Goals
 
@@ -137,7 +126,6 @@ await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
 - [ ] Can _anyone_ withdraw? Test _everything_!
 - [ ] What if you minted **2000** and only sent **1000** to the `Vendor`?
 
----
 
 ### Checkpoint 4: 🤔 Vendor Buyback 🤯
 
@@ -172,7 +160,6 @@ await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
 #### ⚠️ Test it!
 -  Now is a good time to run `yarn test` to run the automated testing function. It will test that you hit the core checkpoints.  You are looking for all green checkmarks and passing tests!
 
-----
 
 ### Checkpoint 5: 💾 Deploy it! 🛰
 
@@ -188,7 +175,6 @@ await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
 
 🔬 Inspect the block explorer for the network you deployed to... make sure your contract is there.
 
----
 ### Checkpoint 6: 🚢 Ship it! 🚁
 
 📦 Run `yarn build` to package up your frontend.
@@ -201,7 +187,6 @@ await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
 
 🚔 Traffic to your url might break the [Infura](https://infura.io/) rate limit, edit your key: `constants.js` in `packages/ract-app/src`.
 
----
 ### Checkpoint 7: 📜 Contract Verification
 
 Update the `api-key` in `packages/hardhat/package.json`. You can get your key [here](https://etherscan.io/myapikey).
@@ -212,6 +197,5 @@ Update the `api-key` in `packages/hardhat/package.json`. You can get your key [h
 
 👉 This will be the URL you submit to 🏃‍♀️[SpeedRunEthereum.com](https://speedrunethereum.com).
 
----
 
 💬 Problems, questions, comments on the stack? Post them to the [Challenge 2 telegram channel](https://t.me/joinchat/IfARhZFc5bfPwpjq)
