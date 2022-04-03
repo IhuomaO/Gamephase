@@ -30,10 +30,12 @@ import Authereum from "authereum";
 import humanizeDuration from "humanize-duration";
 
 const { ethers } = require("ethers");
+
 /*
     Welcome to 🏗 scaffold-eth !
 
     Code:
+
     https://github.com/austintgriffith/scaffold-eth
 
     Support:
@@ -132,6 +134,7 @@ const web3Modal = new Web3Modal({
         key: "pk_live_5A7C91B2FC585A17", // required
       },
     },
+
     // torus: {
     //   package: Torus,
     //   options: {
@@ -145,6 +148,7 @@ const web3Modal = new Web3Modal({
     //     },
     //   },
     // },
+
     "custom-walletlink": {
       display: {
         logo: "https://play-lh.googleusercontent.com/PjoJoG27miSglVBXoXrxBSLveV6e3EeBPpNY55aiUUBM9Q1RCETKCOqdOkX2ZydqVf0",
@@ -291,6 +295,7 @@ function App(props) {
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:", addressFromENS)
+
   */
 
   //
@@ -579,6 +584,7 @@ function App(props) {
                     <List.Item key={item.blockNumber}>
                       <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> =>
                       <Balance balance={item.args[1]} />
+
                     </List.Item>
                   );
                 }}
