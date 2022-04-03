@@ -1,0 +1,12 @@
+{
+  "localhost_YourCollectibleAddress": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "rinkeby_YourCollectibleAddress": "0x4416109b433bF02A0F79fc7353E85522a2596Dee",
+  "localhost_ExampleExternalContractAddress": "0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf",
+  "localhost_StakerAddress": "0x0E801D84Fa97b50751Dbf25036d067dCf18858bF",
+  "rinkeby_ExampleExternalContractAddress": "0xC9f726D92518d951604DDA2df0ca9DAE09081C62",
+  "rinkeby_StakerAddress": "0x26fAc038239a7785585fab5d407cEb116837326d",
+  "localhost_YourTokenAddress": "0x851356ae760d987E095750cCeb3bC6014560891C",
+  "localhost_VendorAddress": "0x95401dc811bb5740090279Ba06cfA8fcF6113778",
+  "rinkeby_VendorAddress": "0x8b7E175c45e4cC1156dF75F0D05e7E7f7aEAbC1c",
+  "rinkeby_YourTokenAddress": "0xD727b1010C1eDA537013F7c49Ee815988F16a2EE"
+}
