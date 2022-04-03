@@ -1,201 +1,221 @@
 # 🏗 scaffold-eth | 🏰 BuidlGuidl
 
-## 🚩 Challenge 2: 🏵 Token Vendor 🤖
+## 🚩 Challenge 0: 🎟 Simple NFT Example 🤓
+
+🎫 Create a simple NFT to learn basics of 🏗 scaffold-eth. You'll use [👷‍♀️ HardHat](https://hardhat.org/getting-started/) to compile and deploy smart contracts. Then, you'll use a template React app full of important Ethereum components and hooks. Finally, you'll deploy an NFT to a public network to share with friends! 🚀
+
+🌟 The final deliverable is an app that lets users purchase and transfer NFTs. Deploy your contracts to Rinkeby and then build and upload your app to a public web server. Submit the url on [SpeedRunEthereum.com](https://speedrunethereum.com)!
+
+💬 Meet other builders working on this challenge and get help in the [Challenge 0 telegram](https://t.me/+Y2vqXZZ_pEFhMGMx)!!!
 
 
-> 🤖 Smart contracts are kind of like "always on" *vending machines* that **anyone** can access. Let's make a decentralized, digital currency. Then, let's build an unstoppable vending machine that will buy and sell the currency. We'll learn about the "approve" pattern for ERC20s and how contract to contract interactions work.  
+# Checkpoint 0: 📦 Install 📚
 
-> 🏵 Create `YourToken.sol` smart contract that inherits the **ERC20** token standard from OpenZeppelin. Set your token to `_mint()` **1000** (\* 10 \*\* 18) tokens to the `msg.sender`. Then create a `Vendor.sol` contract that sells your token using a payable `buyTokens()` function.
+Want a fresh cloud environment? Click this to open a gitpod workspace, then skip to Checkpoint 1 after the tasks are complete.
 
-> 🎛 Edit the frontend that invites the user to `<input\>` an amount of tokens they want to buy. We'll display a preview of the amount of ETH (or USD) it will cost with a confirm button.
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/scaffold-eth/scaffold-eth-challenges/tree/challenge-0-simple-nft)
 
-> 🔍 It will be important to verify your token's source code in the block explorer after you deploy. Supporters will want to be sure that it has a fixed supply and you can't just mint more.
+Required: 
+* [Git](https://git-scm.com/downloads)
+* [Node](https://nodejs.org/dist/latest-v16.x/)  (🧨 Use Node v16 or a previous version as v17 may cause errors 🧨)
+* [Yarn](https://classic.yarnpkg.com/en/docs/install/#mac-stable)
 
-> 🌟 The final deliverable is an app that lets users purchase your ERC20 token, transfer it, and sell it back to the vendor. Deploy your contracts on your public chain of choice and then `yarn build` and `yarn surge` your app to a public web server. Submit the url on [SpeedRunEthereum.com](https://speedrunethereum.com)!
+(⚠️ Don't install the linux package `yarn` make sure you install yarn with `npm i -g yarn` or even `sudo npm i -g yarn`!)
 
-> 💬 Meet other builders working on this challenge and get help in the [Challenge 2 telegram](https://t.me/joinchat/IfARhZFc5bfPwpjq)!
-
-🧫 Everything starts by ✏️ Editing `YourToken.sol` in `packages/hardhat/contracts`
-
-
-### Checkpoint 0: 📦 install 📚
-
-git clone https://github.com/scaffold-eth/scaffold-eth-challenges challenge-2-token-vendor
-cd challenge-2-token-vendor
-git checkout challenge-2-token-vendor
+```sh
+git clone https://github.com/scaffold-eth/scaffold-eth-challenges.git challenge-0-simple-nft
+```
+```sh
+cd challenge-0-simple-nft
+git checkout challenge-0-simple-nft
 yarn install
+yarn chain
+```
 
-🔏 Edit your smart contract `YourToken.sol` in `packages/hardhat/contracts`
+> in a second terminal window, start your 📱 frontend:
 
-### Checkpoint 1: 🔭 Environment 📺
+```sh
+cd challenge-0-simple-nft
+yarn start
+```
 
-You'll have three terminals up for:
+> in a third terminal window, 🛰 deploy your contract:
 
-`yarn chain` (hardhat backend)
+```sh
+cd challenge-0-simple-nft
+yarn deploy 
+```
 
-`yarn start` (react app frontend)
+> You can `yarn deploy --reset` to deploy a new contract any time.
 
-`yarn deploy` (to compile, deploy, and publish your contracts to the frontend)
+📱 Open http://localhost:3000 to see the app
 
-> 👀 Visit your frontend at http://localhost:3000
+# Checkpoint 1: ⛽️  Gas & Wallets 👛
 
-> 👩‍💻 Rerun `yarn deploy --reset` whenever you want to deploy new contracts to the frontend.
+> ⛽️ You'll need to get some funds from the faucet for gas. 
 
-> ignore any warnings, we'll get to that...
+![image](https://user-images.githubusercontent.com/2653167/142483294-ff4c305c-0f5e-4099-8c7d-11c142cb688c.png)
 
+> 🦊 At first, please **don't** connect MetaMask. If you already connected, please click **logout**:
 
-### Checkpoint 2: 🏵Your Token 💵
+![image](https://user-images.githubusercontent.com/2653167/142484483-1439d925-8cef-4b1a-a4b2-0f022eebc0f6.png)
 
-> 👩‍💻 Edit `YourToken.sol` to inherit the **ERC20** token standard from OpenZeppelin
 
-> Mint **1000** (\* 10 \*\* 18) to your frontend address using the `constructor()`.
+> 🔥 We'll use **burner wallets** on localhost...
 
-(Your frontend address is the address in the top right of http://localhost:3000)
 
-> You can `yarn deploy --reset` to deploy your contract until you get it right.
+> 👛 Explore how **burner wallets** work in 🏗 scaffold-eth by opening a new *incognito* window and navigate it to http://localhost:3000. You'll notice it has a new wallet address in the top right. Copy the incognito browsers' address and send localhost test funds to it from your first browser: 
 
-#### 🥅 Goals
+![image](https://user-images.githubusercontent.com/2653167/142483685-d5c6a153-da93-47fa-8caa-a425edba10c8.png)
 
-- [ ] Can you check the `balanceOf()` your frontend address in the **YourToken** of the `Debug Contracts` tab?
-- [ ] Can you `transfer()` your token to another account and check _that_ account's `balanceOf`?
+> 👨🏻‍🚒 When you close the incognito window, the account is gone forever. Burner wallets are great for local development but you'll move to more permanent wallets when you interact with public networks.
 
-(Use an incognito window to create a new address and try sending to that new address. Use the `transfer()` function in the `Debug Contracts` tab.)
 
+# Checkpoint 2: 🖨 Minting 
 
-### Checkpoint 3: ⚖️ Vendor 🤖
+> ✏️ Mint some NFTs!  Click the `MINT NFT` button in the YourCollectables tab.  
 
-> 👩‍💻 Edit the `Vendor.sol` contract with a **payable** `buyTokens()` function
+![MintNFT](https://user-images.githubusercontent.com/12072395/145692116-bebcb514-e4f0-4492-bd10-11e658abaf75.PNG)
 
-Use a price variable named `tokensPerEth` set to **100**:
 
-uint256 public constant tokensPerEth = 100;
+👀 You should see your collectibles start to show up:
 
+![nft3](https://user-images.githubusercontent.com/526558/124386983-48965300-dcb3-11eb-88a7-e88ad6307976.png)
 
-> 📝 The `buyTokens()` function in `Vendor.sol` should use `msg.value` and `tokensPerEth` to calculate an amount of tokens to `yourToken.transfer()` to `msg.sender`.
+👛 Open an **incognito** window and navigate to http://localhost:3000 
 
-> 📟 Emit **event** `BuyTokens(address buyer, uint256 amountOfETH, uint256 amountOfTokens)` when tokens are purchased.
+🎟 Transfer an NFT to the incognito window address using the UI:
 
-Edit `deploy/01_deploy_vendor.js` to deploy the `Vendor` (uncomment Vendor deploy lines).
+![nft5](https://user-images.githubusercontent.com/526558/124387008-58ae3280-dcb3-11eb-920d-07b6118f1ab2.png)
 
-#### 🥅 Goals
+👛 Try to mint an NFT from the incognito window. 
 
-- [ ] When you try to buy tokens from the vendor, you should get an error: **'ERC20: transfer amount exceeds balance'**
+> Can you mint an NFT with no funds in this address?  You might need to grab funds from the faucet to pay the gas!
 
-⚠️ this is because the Vendor contract doesn't have any YourTokens yet!
+🕵🏻‍♂️ Inspect the `Debug Contracts` tab to figure out what address is the `owner` of `YourCollectible`?
 
-⚔️ Side Quest: send tokens from your frontend address to the Vendor contract address and *then* try to buy them.
+🔏 You can also check out your smart contract `YourCollectible.sol` in `packages/hardhat/contracts`.
 
-> ✏️ We can't hard code the vendor address like we did above when deploying to the network because we won't know the vender address at the time we create the token contract. 
+💼 Take a quick look at your deploy script `00_deploy_your_contract.js` in `packages/hardhat/deploy`.
 
-> ✏️ So instead, edit `YourToken.sol` to transfer the tokens to the `msg.sender` (deployer) in the **constructor()**.
-
-> ✏️ Then, edit `deploy/01_deploy_vendor.js` to transfer 1000 tokens to `vendor.address`.
-
-
-await yourToken.transfer( vendor.address, ethers.utils.parseEther("1000") );
-
-> You can `yarn deploy --reset` to deploy your contract until you get it right.
-
-(You will use the `YourToken` UI tab and the frontend for most of your testing. Most of the UI is already built for you for this challenge.)
-
-#### 🥅 Goals
-
-- [ ] Does the `Vendor` address start with a `balanceOf` **1000** in `YourToken` on the `Debug Contracts` tab?
-- [ ] Can you buy **10** tokens for **0.1** ETH?
-- [ ] Can you transfer tokens to a different account?
-
-
-> 📝 Edit `Vendor.sol` to inherit *Ownable*.
-
-In `deploy/01_deploy_vendor.js` you will need to call `transferOwnership()` on the `Vendor` to make *your frontend address* the `owner`:
-
-await vendor.transferOwnership("**YOUR FRONTEND ADDRESS**");
-
-#### 🥅 Goals
-
-- [ ] Is your frontend address the `owner` of the `Vendor`?
-
-> 📝 Finally, add a `withdraw()` function in `Vendor.sol` that lets the owner withdraw ETH from the vendor.
-
-#### 🥅 Goals
-
-- [ ] Can **only** the `owner` withdraw the ETH from the `Vendor`?
-
-#### ⚔️ Side Quests
-
-- [ ] Can _anyone_ withdraw? Test _everything_!
-- [ ] What if you minted **2000** and only sent **1000** to the `Vendor`?
-
-
-### Checkpoint 4: 🤔 Vendor Buyback 🤯
-
-👩‍🏫 The hardest part of this challenge is to build your `Vendor` to buy the tokens back.
-
-🧐 The reason why this is hard is the `approve()` pattern in ERC20s. You can read more about the `approve()` pattern [here](https://docs.ethhub.io/guides/a-straightforward-guide-erc20-tokens/).
-
-😕 First, the user has to call `approve()` on the `YourToken` contract, approving the `Vendor` contract address to take some amount of tokens.
-
-🤨 Then, the user makes a *second transaction* to the `Vendor` contract to `sellTokens(uint256 amount)`.
-
-🤓 The `Vendor` should call `yourToken.transferFrom(msg.sender, address(this), theAmount)` and if the user has approved the `Vendor` correctly, tokens should transfer to the `Vendor` and ETH should be sent to the user.
-
-> 📝 Edit `Vendor.sol` and add a `sellTokens()` function!
-
-⚠️ You will need extra UI for calling `approve()` before calling `sellTokens(uint256 amount)`.
-
-🔨 Use the `Debug Contracts` tab to call the approve and sellTokens() at first but then...
-
-🔍 Look in the `App.jsx` for the extra approve/sell UI to uncomment!
-
-#### 🥅 Goal
-
-- [ ] Can you sell tokens back to the vendor?
-- [ ] Do you receive the right amount of ETH for the tokens?
-
-#### ⚔️ Side Quest
-
-- [ ] Should we disable the `owner` withdraw to keep liquidity in the `Vendor`?
-- [ ] It would be a good idea to display Sell Token Events.  Create the `event` and `emit` it in your `Vendor.sol` and look at `buyTokensEvents` in your `App.jsx` for an example of how to update your frontend.
-
-#### ⚠️ Test it!
--  Now is a good time to run `yarn test` to run the automated testing function. It will test that you hit the core checkpoints.  You are looking for all green checkmarks and passing tests!
-
-
-### Checkpoint 5: 💾 Deploy it! 🛰
-
-📡 Edit the `defaultNetwork` in `packages/hardhat/hardhat.config.js`, as well as `targetNetwork` in `packages/react-app/src/App.jsx`, to [your choice of public EVM networks](https://ethereum.org/en/developers/docs/networks/)
-
-👩‍🚀 You will want to run `yarn account` to see if you have a **deployer address**.
-
-🔐 If you don't have one, run `yarn generate` to create a mnemonic and save it locally for deploying.
-
-🛰 Use a faucet like [faucet.paradigm.xyz](https://faucet.paradigm.xyz/) to fund your **deployer address** (run `yarn account` again to view balances)
-
-> 🚀 Run `yarn deploy` to deploy to your public network of choice (😅 wherever you can get ⛽️ gas)
-
-🔬 Inspect the block explorer for the network you deployed to... make sure your contract is there.
-
-### Checkpoint 6: 🚢 Ship it! 🚁
-
-📦 Run `yarn build` to package up your frontend.
-
-💽 Upload your app to surge with `yarn surge` (you could also `yarn s3` or maybe even `yarn ipfs`?)
-
->  😬 Windows users beware!  You may have to change the surge code in `packages/react-app/package.json` to just `"surge": "surge ./build",`
-
-⚙ If you get a permissions error `yarn surge` again until you get a unique URL, or customize it in the command line.
-
-🚔 Traffic to your url might break the [Infura](https://infura.io/) rate limit, edit your key: `constants.js` in `packages/ract-app/src`.
-
-### Checkpoint 7: 📜 Contract Verification
-
-Update the `api-key` in `packages/hardhat/package.json`. You can get your key [here](https://etherscan.io/myapikey).
+📝 If you want to make frontend edits, open `App.jsx` in `packages/react-app/src`.
 
 > Now you are ready to run the `yarn verify --network your_network` command to verify your contracts on etherscan 🛰
 
-👀 You may see an address for both YouToken and Vendor.  You will want the Vendor address.
+# Checkpoint 3: 💾 Deploy it! 🛰
 
-👉 This will be the URL you submit to 🏃‍♀️[SpeedRunEthereum.com](https://speedrunethereum.com).
+🛰 Ready to deploy to a public testnet?!?
+
+> Change the `defaultNetwork` in `packages/hardhat/hardhat.config.js` to `rinkeby`
+
+![networkSelect](https://user-images.githubusercontent.com/12072395/146871168-29b3d87a-7d25-4972-9b3c-0ec8c979171b.PNG)
+
+🔐 Generate a **deployer address** with `yarn generate`
+
+![nft7](https://user-images.githubusercontent.com/526558/124387064-7d0a0f00-dcb3-11eb-9d0c-195f93547fb9.png)
+
+👛 View your **deployer address** using `yarn account` 
+
+![nft8](https://user-images.githubusercontent.com/526558/124387068-8004ff80-dcb3-11eb-9d0f-43fba2b3b791.png)
+
+⛽️ Use a faucet like [faucet.paradigm.xyz](https://faucet.paradigm.xyz/) to fund your **deployer address**.
+
+> ⚔️ **Side Quest:** Keep a 🧑‍🎤 [punkwallet.io](https://punkwallet.io/) on your phone's home screen and keep it loaded with testnet eth. 🧙‍♂️ You'll look like a wizard when you can fund your **deployer address** from your phone in seconds. 
+
+🚀 Deploy your NFT smart contract:
+
+```sh
+yarn deploy
+```
+
+> 💬 Hint: You can set the `defaultNetwork` in `hardhat.config.js` to `Rinkeby` OR you can `yarn deploy --network rinkeby`. 
 
 
-💬 Problems, questions, comments on the stack? Post them to the [Challenge 2 telegram channel](https://t.me/joinchat/IfARhZFc5bfPwpjq)
+# Checkpoint 4: 🚢 Ship it! 🚁
+
+> ✏️ Edit your frontend `App.jsx` in `packages/react-app/src` to change the `targetNetwork` to `NETWORKS.rinkeby`:
+
+![image](https://user-images.githubusercontent.com/2653167/142491593-a032ebf2-38c7-4d1c-a4c5-5e02485e21b4.png)
+
+You should see the correct network in the frontend (http://localhost:3000):
+
+![nft10](https://user-images.githubusercontent.com/526558/124387099-9a3edd80-dcb3-11eb-9a57-54a7d370589a.png)
+
+🎫 Ready to mint a batch of NFTs for reals?  Use the `MINT NFT` button.
+
+![MintNFT2](https://user-images.githubusercontent.com/12072395/145692572-d61c971d-7452-4218-9c66-d675bb78a9dc.PNG)
+
+
+📦 Build your frontend:
+
+```sh
+yarn build
+```
+
+💽 Upload your app to surge:
+```sh
+yarn surge
+```
+(You could also `yarn s3` or maybe even `yarn ipfs`?)
+
+>  😬 Windows users beware!  You may have to change the surge code in `packages/react-app/package.json` to just `"surge": "surge ./build",`
+
+⚙ If you get a permissions error `yarn surge` again until you get a unique URL, or customize it in the command line. 
+
+⚠️ Run the automated testing function to make sure your app passes
+
+```sh
+yarn test
+```
+![testOutput](https://user-images.githubusercontent.com/12072395/152587433-8314f0f1-5612-44ae-bedb-4b3292976a9f.PNG)
+
+---
+
+# Checkpoint 5: 📜 Contract Verification
+
+Update the `api-key` in `packages/hardhat/package.json` file. You can get your key [here](https://etherscan.io/myapikey).
+
+![Screen Shot 2021-11-30 at 10 21 01 AM](https://user-images.githubusercontent.com/9419140/144075208-c50b70aa-345f-4e36-81d6-becaa5f74857.png)
+
+> Now you are ready to run the `yarn verify --network your_network` command to verify your contracts on etherscan 🛰
+
+---
+
+# Checkpoint 6: 💪 Flex!
+
+👩‍❤️‍👨 Share your public url with a friend and ask them for their address to send them a collectible :)
+
+![nft15](https://user-images.githubusercontent.com/526558/124387205-00c3fb80-dcb4-11eb-9e2f-29585e323037.gif)
+
+---
+
+# ⚔️ Side Quests
+
+## 🐟 Open Sea
+> Add your contract to OpenSea
+> 1. hover over your profile photo in the top right and navigate to `Collections` or go to `https://opensea.io/collections`
+> ![my_collections](https://user-images.githubusercontent.com/46639943/150223014-92a2e32d-d2a2-4fd4-ac3b-bd2d0fcb5840.png)
+> 2. click the vertical elipsis and select `Import an existing smart contract`
+> ![import_contract](https://user-images.githubusercontent.com/46639943/150225448-815a17c1-4ea6-4663-8aff-8f757bebbb54.png)
+> 3. select `Live on a testnet`
+> ![live_on_testnet](https://user-images.githubusercontent.com/46639943/150229334-038100bb-22e0-4240-a293-c2b88adc1219.png)
+> 4. be sure you're on the same network you deployed to and enter your contract address!
+> ![contract_address](https://user-images.githubusercontent.com/46639943/150229361-e50e8c57-3918-450f-8bee-29cf42d65b52.png)
+
+
+(It can take a while before they show up, but here is an example:)
+https://testnets.opensea.io/assets/0xc2839329166d3d004aaedb94dde4173651babccf/1
+
+## 🔶 Infura
+> You will need to get a key from infura.io and paste it into constants.js in packages/react-app/src:
+
+![nft13](https://user-images.githubusercontent.com/526558/124387174-d83c0180-dcb3-11eb-989e-d58ba15d26db.png)
+
+---
+
+> 🏃 Head to your next challenge [here](https://speedrunethereum.com).
+
+> 💬 Meet other builders working on this challenge in the [Challenge 0 telegram channel](https://t.me/+Y2vqXZZ_pEFhMGMx)!!!
+
+> 👉 Problems, questions, comments on the stack? Post them to the [🏗 scaffold-eth developers chat](https://t.me/joinchat/F7nCRK3kI93PoCOk)
+

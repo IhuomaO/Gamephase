@@ -1,6 +1,6 @@
 import Portis from "@portis/web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { Alert, Button, Card, Col, Divider, Input, List, Menu, Row } from "antd";
+import { Alert, Button, Card, Col, Input, List, Menu, Row } from "antd";
 import "antd/dist/antd.css";
 import Authereum from "authereum";
 import {
@@ -14,37 +14,32 @@ import {
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import { useEventListener } from "eth-hooks/events/useEventListener";
 import Fortmatic from "fortmatic";
+// https://www.npmjs.com/package/ipfs-http-client
+// import { create } from "ipfs-http-client";
 import React, { useCallback, useEffect, useState } from "react";
+import ReactJson from "react-json-view";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 //import Torus from "@toruslabs/torus-embed"
 import WalletLink from "walletlink";
 import Web3Modal from "web3modal";
 import "./App.css";
-import {
-  Account,
-  Address,
-  AddressInput,
-  Balance,
-  Contract,
-  Faucet,
-  GasGauge,
-  Header,
-  Ramp,
-  ThemeSwitch,
-} from "./components";
+import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
+import { useContractConfig } from "./hooks";
+// import Hints from "./Hints";
 
-// contracts
-import externalContracts from "./contracts/external_contracts";
-import deployedContracts from "./contracts/hardhat_contracts.json";
+const { BufferList } = require("bl");
+const ipfsAPI = require("ipfs-http-client");
+const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" });
 
 const { ethers } = require("ethers");
+
 /*
     Welcome to 🏗 scaffold-eth !
 
     Code:
-    https://github.com/austintgriffith/scaffold-eth
+    https://github.com/scaffold-eth/scaffold-eth
 
     Support:
     https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
@@ -65,6 +60,39 @@ const targetNetwork = NETWORKS.rinkeby; // <------- select your target frontend 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
 const NETWORKCHECK = true;
+
+// EXAMPLE STARTING JSON:
+const STARTING_JSON = {
+  description: "It's actually a bison?",
+  external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+  image: "https://austingriffith.com/images/paintings/buffalo.jpg",
+  name: "Buffalo",
+  attributes: [
+    {
+      trait_type: "BackgroundColor",
+      value: "green",
+    },
+    {
+      trait_type: "Eyes",
+      value: "googly",
+    },
+  ],
+};
+
+// helper function to "Get" from IPFS
+// you usually go content.toString() after this...
+const getFromIPFS = async hashToGet => {
+  for await (const file of ipfs.get(hashToGet)) {
+    console.log(file.path);
+    if (!file.content) continue;
+    const content = new BufferList();
+    for await (const chunk of file.content) {
+      content.append(chunk);
+    }
+    console.log(content);
+    return content;
+  }
+};
 
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -142,19 +170,7 @@ const web3Modal = new Web3Modal({
         key: "pk_live_5A7C91B2FC585A17", // required
       },
     },
-    // torus: {
-    //   package: Torus,
-    //   options: {
-    //     networkParams: {
-    //       host: "https://localhost:8545", // optional
-    //       chainId: 1337, // optional
-    //       networkId: 1337 // optional
-    //     },
-    //     config: {
-    //       buildEnv: "development" // optional
-    //     },
-    //   },
-    // },
+
     "custom-walletlink": {
       display: {
         logo: "https://play-lh.googleusercontent.com/PjoJoG27miSglVBXoXrxBSLveV6e3EeBPpNY55aiUUBM9Q1RCETKCOqdOkX2ZydqVf0",
@@ -232,7 +248,7 @@ function App(props) {
   // Just plug in different 🛰 providers to get your balance on different chains:
   const yourMainnetBalance = useBalance(mainnetProvider, address);
 
-  const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
+  const contractConfig = useContractConfig();
 
   // Load in your local 📝 contract and read a value from it:
   const readContracts = useContractLoader(localProvider, contractConfig);
@@ -255,43 +271,51 @@ function App(props) {
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]);
 
-  const vendorAddress = readContracts && readContracts.Vendor && readContracts.Vendor.address;
+  // keep track of a variable from the contract in the local React state:
+  const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
+  console.log("🤗 balance:", balance);
 
-  const vendorETHBalance = useBalance(localProvider, vendorAddress);
-  if (DEBUG) console.log("💵 vendorETHBalance", vendorETHBalance ? ethers.utils.formatEther(vendorETHBalance) : "...");
+  // 📟 Listen for broadcast events
+  const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
+  console.log("📟 Transfer events:", transferEvents);
 
-  const vendorApproval = useContractReader(readContracts, "YourToken", "allowance", [
-    address, vendorAddress
-  ]);
-  console.log("🤏 vendorApproval",vendorApproval)
-
-  const vendorTokenBalance = useContractReader(readContracts, "YourToken", "balanceOf", [vendorAddress]);
-  console.log("🏵 vendorTokenBalance:", vendorTokenBalance ? ethers.utils.formatEther(vendorTokenBalance) : "...");
-
-  const yourTokenBalance = useContractReader(readContracts, "YourToken", "balanceOf", [address]);
-  console.log("🏵 yourTokenBalance:", yourTokenBalance ? ethers.utils.formatEther(yourTokenBalance) : "...");
-
-  const tokensPerEth = useContractReader(readContracts, "Vendor", "tokensPerEth");
-  console.log("🏦 tokensPerEth:", tokensPerEth ? tokensPerEth.toString() : "...");
-
-  // const complete = useContractReader(readContracts,"ExampleExternalContract", "completed")
-  // console.log("✅ complete:",complete)
   //
-  // const exampleExternalContractBalance = useBalance(localProvider, readContracts && readContracts.ExampleExternalContract.address);
-  // if(DEBUG) console.log("💵 exampleExternalContractBalance", exampleExternalContractBalance )
+  // 🧠 This effect will update yourCollectibles by polling when your balance changes
+  //
+  const yourBalance = balance && balance.toNumber && balance.toNumber();
+  const [yourCollectibles, setYourCollectibles] = useState();
 
-  // let completeDisplay = ""
-  // if(false){
-  //   completeDisplay = (
-  //     <div style={{padding:64, backgroundColor:"#eeffef", fontWeight:"bolder"}}>
-  //       🚀 🎖 👩‍🚀  -  Staking App triggered `ExampleExternalContract` -- 🎉  🍾   🎊
-  //       <Balance
-  //         balance={0}
-  //         fontSize={64}
-  //       /> ETH staked!
-  //     </div>
-  //   )
-  // }
+  useEffect(() => {
+    const updateYourCollectibles = async () => {
+      const collectibleUpdate = [];
+      for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
+        try {
+          console.log("GEtting token index", tokenIndex);
+          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
+          console.log("tokenId", tokenId);
+          const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
+          console.log("tokenURI", tokenURI);
+
+          const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
+          console.log("ipfsHash", ipfsHash);
+
+          const jsonManifestBuffer = await getFromIPFS(ipfsHash);
+
+          try {
+            const jsonManifest = JSON.parse(jsonManifestBuffer.toString());
+            console.log("jsonManifest", jsonManifest);
+            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
+          } catch (e) {
+            console.log(e);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      setYourCollectibles(collectibleUpdate);
+    };
+    updateYourCollectibles();
+  }, [address, yourBalance]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -461,7 +485,7 @@ function App(props) {
     !faucetClicked &&
     localProvider &&
     localProvider._network &&
-    localProvider._network.chainId === 31337 &&
+    localProvider._network.chainId == 31337 &&
     yourLocalBalance &&
     ethers.utils.formatEther(yourLocalBalance) <= 0
   ) {
@@ -472,7 +496,7 @@ function App(props) {
           onClick={() => {
             faucetTx({
               to: address,
-              value: ethers.utils.parseEther("1"),
+              value: ethers.utils.parseEther("0.01"),
             });
             setFaucetClicked(true);
           }}
@@ -483,83 +507,166 @@ function App(props) {
     );
   }
 
-  const buyTokensEvents = useEventListener(readContracts, "Vendor", "BuyTokens", localProvider, 1);
-  const sellTokensEvents = useEventListener(readContracts, "Vendor", "SellTokens", localProvider, 1);
-  console.log("📟 buyTokensEvents:", buyTokensEvents);
-  console.log("📟 sellTokensEvents:", sellTokensEvents);
+  const [yourJSON, setYourJSON] = useState(STARTING_JSON);
+  const [sending, setSending] = useState();
+  const [ipfsHash, setIpfsHash] = useState();
+  const [ipfsDownHash, setIpfsDownHash] = useState();
+  const [downloading, setDownloading] = useState();
+  const [ipfsContent, setIpfsContent] = useState();
+  const [transferToAddresses, setTransferToAddresses] = useState({});
+  const [minting, setMinting] = useState(false);
+  const [count, setCount] = useState(1);
 
-  const [tokenBuyAmount, setTokenBuyAmount] = useState({
-    valid: false,
-    value: ''
-  });
-  const [tokenSellAmount, setTokenSellAmount] = useState({
-    valid: false,
-    value: ''
-  });
-  const [isSellAmountApproved, setIsSellAmountApproved] = useState();
+  // the json for the nfts
+  const json = {
+    1: {
+      description: "It's actually a bison?",
+      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+      image: "https://austingriffith.com/images/paintings/buffalo.jpg",
+      name: "Buffalo",
+      attributes: [
+        {
+          trait_type: "BackgroundColor",
+          value: "green",
+        },
+        {
+          trait_type: "Eyes",
+          value: "googly",
+        },
+        {
+          trait_type: "Stamina",
+          value: 42,
+        },
+      ],
+    },
+    2: {
+      description: "What is it so worried about?",
+      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+      image: "https://austingriffith.com/images/paintings/zebra.jpg",
+      name: "Zebra",
+      attributes: [
+        {
+          trait_type: "BackgroundColor",
+          value: "blue",
+        },
+        {
+          trait_type: "Eyes",
+          value: "googly",
+        },
+        {
+          trait_type: "Stamina",
+          value: 38,
+        },
+      ],
+    },
+    3: {
+      description: "What a horn!",
+      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+      image: "https://austingriffith.com/images/paintings/rhino.jpg",
+      name: "Rhino",
+      attributes: [
+        {
+          trait_type: "BackgroundColor",
+          value: "pink",
+        },
+        {
+          trait_type: "Eyes",
+          value: "googly",
+        },
+        {
+          trait_type: "Stamina",
+          value: 22,
+        },
+      ],
+    },
+    4: {
+      description: "Is that an underbyte?",
+      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+      image: "https://austingriffith.com/images/paintings/fish.jpg",
+      name: "Fish",
+      attributes: [
+        {
+          trait_type: "BackgroundColor",
+          value: "blue",
+        },
+        {
+          trait_type: "Eyes",
+          value: "googly",
+        },
+        {
+          trait_type: "Stamina",
+          value: 15,
+        },
+      ],
+    },
+    5: {
+      description: "So delicate.",
+      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+      image: "https://austingriffith.com/images/paintings/flamingo.jpg",
+      name: "Flamingo",
+      attributes: [
+        {
+          trait_type: "BackgroundColor",
+          value: "black",
+        },
+        {
+          trait_type: "Eyes",
+          value: "googly",
+        },
+        {
+          trait_type: "Stamina",
+          value: 6,
+        },
+      ],
+    },
+    6: {
+      description: "Raaaar!",
+      external_url: "https://austingriffith.com/portfolio/paintings/", // <-- this can link to a page for the specific file too
+      image: "https://austingriffith.com/images/paintings/godzilla.jpg",
+      name: "Godzilla",
+      attributes: [
+        {
+          trait_type: "BackgroundColor",
+          value: "orange",
+        },
+        {
+          trait_type: "Eyes",
+          value: "googly",
+        },
+        {
+          trait_type: "Stamina",
+          value: 99,
+        },
+      ],
+    },
+  };
 
-  useEffect(()=>{
-    console.log("tokenSellAmount",tokenSellAmount.value)
-    const tokenSellAmountBN = tokenSellAmount.valid ? ethers.utils.parseEther("" + tokenSellAmount.value) : 0;
-    console.log("tokenSellAmountBN",tokenSellAmountBN)
-    setIsSellAmountApproved(vendorApproval && tokenSellAmount.value && vendorApproval.gte(tokenSellAmountBN))
-  },[tokenSellAmount, readContracts])
-  console.log("isSellAmountApproved",isSellAmountApproved)
-
-  const ethCostToPurchaseTokens =
-    tokenBuyAmount.valid && tokensPerEth && ethers.utils.parseEther("" + tokenBuyAmount.value / parseFloat(tokensPerEth));
-  console.log("ethCostToPurchaseTokens:", ethCostToPurchaseTokens);
-
-  const ethValueToSellTokens =
-    tokenSellAmount.valid && tokensPerEth && ethers.utils.parseEther("" + tokenSellAmount.value / parseFloat(tokensPerEth));
-  console.log("ethValueToSellTokens:", ethValueToSellTokens);
-
-  const [tokenSendToAddress, setTokenSendToAddress] = useState();
-  const [tokenSendAmount, setTokenSendAmount] = useState();
-
-  const [buying, setBuying] = useState();
-
-  let transferDisplay = "";
-  if (yourTokenBalance) {
-    transferDisplay = (
-      <div style={{ padding: 8, marginTop: 32, width: 420, margin: "auto" }}>
-        <Card title="Transfer tokens">
-          <div>
-            <div style={{ padding: 8 }}>
-              <AddressInput
-                ensProvider={mainnetProvider}
-                placeholder="to address"
-                value={tokenSendToAddress}
-                onChange={setTokenSendToAddress}
-              />
-            </div>
-            <div style={{ padding: 8 }}>
-              <Input
-                style={{ textAlign: "center" }}
-                placeholder={"amount of tokens to send"}
-                value={tokenSendAmount}
-                onChange={e => {
-                  setTokenSendAmount(e.target.value);
-                }}
-              />
-            </div>
-          </div>
-          <div style={{ padding: 8 }}>
-            <Button
-              type={"primary"}
-              onClick={() => {
-                tx(
-                  writeContracts.YourToken.transfer(tokenSendToAddress, ethers.utils.parseEther("" + tokenSendAmount)),
-                );
-              }}
-            >
-              Send Tokens
-            </Button>
-          </div>
-        </Card>
-      </div>
+  const mintItem = async () => {
+    // upload to ipfs
+    const uploaded = await ipfs.add(JSON.stringify(json[count]));
+    setCount(count + 1);
+    console.log("Uploaded Hash: ", uploaded);
+    const result = tx(
+      writeContracts &&
+        writeContracts.YourCollectible &&
+        writeContracts.YourCollectible.mintItem(address, uploaded.path),
+      update => {
+        console.log("📡 Transaction Update:", update);
+        if (update && (update.status === "confirmed" || update.status === 1)) {
+          console.log(" 🍾 Transaction " + update.hash + " finished!");
+          console.log(
+            " ⛽️ " +
+              update.gasUsed +
+              "/" +
+              (update.gasLimit || update.gas) +
+              " @ " +
+              parseFloat(update.gasPrice) / 1000000000 +
+              " gwei",
+          );
+        }
+      },
     );
-  }
+  };
 
   return (
     <div className="App">
@@ -575,15 +682,45 @@ function App(props) {
               }}
               to="/"
             >
-              YourToken
+              YourCollectibles
             </Link>
           </Menu.Item>
-          <Menu.Item key="/contracts">
+          <Menu.Item key="/transfers">
             <Link
               onClick={() => {
-                setRoute("/contracts");
+                setRoute("/transfers");
               }}
-              to="/contracts"
+              to="/transfers"
+            >
+              Transfers
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/ipfsup">
+            <Link
+              onClick={() => {
+                setRoute("/ipfsup");
+              }}
+              to="/ipfsup"
+            >
+              IPFS Upload
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/ipfsdown">
+            <Link
+              onClick={() => {
+                setRoute("/ipfsdown");
+              }}
+              to="/ipfsdown"
+            >
+              IPFS Download
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/debugcontracts">
+            <Link
+              onClick={() => {
+                setRoute("/debugcontracts");
+              }}
+              to="/debugcontracts"
             >
               Debug Contracts
             </Link>
@@ -592,205 +729,170 @@ function App(props) {
 
         <Switch>
           <Route exact path="/">
-            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Your Tokens" extra={<a href="#">code</a>}>
-                <div style={{ padding: 8 }}>
-                  <Balance balance={yourTokenBalance} fontSize={64} />
-                </div>
-              </Card>
+            <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <Button
+                disabled={minting}
+                shape="round"
+                size="large"
+                onClick={() => {
+                  mintItem();
+                }}
+              >
+                MINT NFT
+              </Button>
             </div>
-            {transferDisplay}
-            <Divider />
-            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Buy Tokens" extra={<a href="#">code</a>}>
-                <div style={{ padding: 8 }}>{tokensPerEth && tokensPerEth.toNumber()} tokens per ETH</div>
-                <div style={{ padding: 8 }}>
-                  <Input
-                    style={{ textAlign: "center" }}
-                    placeholder={"amount of tokens to buy"}
-                    value={tokenBuyAmount.value}
-                    onChange={e => {
-                      const newValue = e.target.value.startsWith(".") ? "0." : e.target.value;
-                      const buyAmount = {
-                        value: newValue,
-                        valid: /^\d*\.?\d+$/.test(newValue)
-                      }
-                      setTokenBuyAmount(buyAmount);
-                    }}
-                  />
-                  <Balance balance={ethCostToPurchaseTokens} dollarMultiplier={price} />
-                </div>
-
-                <div style={{ padding: 8 }}>
-                  <Button
-                    type={"primary"}
-                    loading={buying}
-                    onClick={async () => {
-                      setBuying(true);
-                      await tx(writeContracts.Vendor.buyTokens({ value: ethCostToPurchaseTokens }));
-                      setBuying(false);
-                    }}
-                    disabled={!tokenBuyAmount.valid}
-                  >
-                    Buy Tokens
-                  </Button>
-                </div>
-              </Card>
-            </div>
-          
-            
-            
-            {/*Extra UI for buying the tokens back from the user using "approve" and "sellTokens"
-                */}
-            <Divider />
-            <div style={{ padding: 8, marginTop: 32, width: 300, margin: "auto" }}>
-              <Card title="Sell Tokens">
-                <div style={{ padding: 8 }}>{tokensPerEth && tokensPerEth.toNumber()} tokens per ETH</div>
-
-                <div style={{ padding: 8 }}>
-                  <Input
-                    style={{ textAlign: "center" }}
-                    placeholder={"amount of tokens to sell"}
-                    value={tokenSellAmount.value}
-                    onChange={e => {
-                      const newValue = e.target.value.startsWith(".") ? "0." : e.target.value;
-                      const sellAmount = {
-                        value: newValue,
-                        valid: /^\d*\.?\d+$/.test(newValue)
-                      }
-                      setTokenSellAmount(sellAmount);
-                    }}
-                  />
-                  <Balance balance={ethValueToSellTokens} dollarMultiplier={price} />
-                </div>
-                {isSellAmountApproved?
-
-                  <div style={{ padding: 8 }}>
-                    <Button
-                      disabled={true}
-                      type={"primary"}
-                    >
-                      Approve Tokens
-                    </Button>
-                    <Button
-                      type={"primary"}
-                      loading={buying}
-                      onClick={async () => {
-                        setBuying(true);
-                        await tx(writeContracts.Vendor.sellTokens(tokenSellAmount.valid && ethers.utils.parseEther(tokenSellAmount.value)));
-                        setBuying(false);
-                        setTokenSellAmount("");
-                      }}
-                      disabled={!tokenSellAmount.valid}
-                    >
-                      Sell Tokens
-                    </Button>
-                  </div>
-                  :
-                  <div style={{ padding: 8 }}>
-                    <Button
-                      type={"primary"}
-                      loading={buying}
-                      onClick={async () => {
-                        setBuying(true);
-                        await tx(writeContracts.YourToken.approve(readContracts.Vendor.address, tokenSellAmount.valid && ethers.utils.parseEther(tokenSellAmount.value)));
-                        setBuying(false);
-                        let resetAmount = tokenSellAmount
-                        setTokenSellAmount("");
-                        setTimeout(()=>{
-                          setTokenSellAmount(resetAmount)
-                        },1500)
-                      }}
-                      disabled={!tokenSellAmount.valid}
+            <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <List
+                bordered
+                dataSource={yourCollectibles}
+                renderItem={item => {
+                  const id = item.id.toNumber();
+                  return (
+                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
+                      <Card
+                        title={
+                          <div>
+                            <span style={{ fontSize: 16, marginRight: 8 }}>#{id}</span> {item.name}
+                          </div>
+                        }
                       >
-                      Approve Tokens
-                    </Button>
-                    <Button
-                      disabled={true}
-                      type={"primary"}
-                    >
-                      Sell Tokens
-                    </Button>
-                  </div>
-                    }
+                        <div>
+                          <img src={item.image} style={{ maxWidth: 150 }} />
+                        </div>
+                        <div>{item.description}</div>
+                      </Card>
 
-
-              </Card>
-            </div>
-        
-            <div style={{ padding: 8, marginTop: 32 }}>
-              <div>Vendor Token Balance:</div>
-              <Balance balance={vendorTokenBalance} fontSize={64} />
-            </div>
-
-            <div style={{ padding: 8 }}>
-              <div>Vendor ETH Balance:</div>
-              <Balance balance={vendorETHBalance} fontSize={64} /> ETH
-            </div>
-
-            <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
-              <div>Buy Token Events:</div>
-              <List
-                dataSource={buyTokensEvents}
-                renderItem={item => {
-                  return (
-                    <List.Item key={item.blockNumber + item.blockHash}>
-                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> paid
-                      <Balance balance={item.args[1]} />
-                      ETH to get
-                      <Balance balance={item.args[2]} />
-                      Tokens
+                      <div>
+                        owner:{" "}
+                        <Address
+                          address={item.owner}
+                          ensProvider={mainnetProvider}
+                          blockExplorer={blockExplorer}
+                          fontSize={16}
+                        />
+                        <AddressInput
+                          ensProvider={mainnetProvider}
+                          placeholder="transfer to address"
+                          value={transferToAddresses[id]}
+                          onChange={newValue => {
+                            const update = {};
+                            update[id] = newValue;
+                            setTransferToAddresses({ ...transferToAddresses, ...update });
+                          }}
+                        />
+                        <Button
+                          onClick={() => {
+                            console.log("writeContracts", writeContracts);
+                            tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id));
+                          }}
+                        >
+                          Transfer
+                        </Button>
+                      </div>
                     </List.Item>
                   );
                 }}
               />
             </div>
 
-            <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
-              <div>Sell Token Events:</div>
-              <List
-                dataSource={sellTokensEvents}
-                renderItem={item => {
-                  return (
-                    <List.Item key={item.blockNumber + item.blockHash}>
-                      <Address value={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> paid
-                      <Balance balance={item.args[1]} />
-                      ETH to get
-                      <Balance balance={item.args[2]} />
-                      Tokens
-                    </List.Item>
-                  );
-                }}
-              />
-            </div>
-
-            {/*
-
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-
-            <Contract
-              name="YourContract"
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-            */}
           </Route>
-          <Route path="/contracts">
+
+          <Route path="/transfers">
+            <div style={{ width: 600, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <List
+                bordered
+                dataSource={transferEvents}
+                renderItem={item => {
+                  return (
+                    <List.Item key={item[0] + "_" + item[1] + "_" + item.blockNumber + "_" + item.args[2].toNumber()}>
+                      <span style={{ fontSize: 16, marginRight: 8 }}>#{item.args[2].toNumber()}</span>
+                      <Address address={item.args[0]} ensProvider={mainnetProvider} fontSize={16} /> =&gt;
+                      <Address address={item.args[1]} ensProvider={mainnetProvider} fontSize={16} />
+                    </List.Item>
+                  );
+                }}
+              />
+            </div>
+
+          </Route>
+
+          <Route path="/ipfsup">
+            <div style={{ paddingTop: 32, width: 740, margin: "auto", textAlign: "left" }}>
+              <ReactJson
+                style={{ padding: 8 }}
+                src={yourJSON}
+                theme="pop"
+                enableClipboard={false}
+                onEdit={(edit, a) => {
+                  setYourJSON(edit.updated_src);
+                }}
+                onAdd={(add, a) => {
+                  setYourJSON(add.updated_src);
+                }}
+                onDelete={(del, a) => {
+                  setYourJSON(del.updated_src);
+                }}
+              />
+            </div>
+
+            <Button
+              style={{ margin: 8 }}
+              loading={sending}
+              size="large"
+              shape="round"
+              type="primary"
+              onClick={async () => {
+                console.log("UPLOADING...", yourJSON);
+                setSending(true);
+                setIpfsHash();
+                const result = await ipfs.add(JSON.stringify(yourJSON)); // addToIPFS(JSON.stringify(yourJSON))
+                if (result && result.path) {
+                  setIpfsHash(result.path);
+                }
+                setSending(false);
+                console.log("RESULT:", result);
+              }}
+            >
+              Upload to IPFS
+            </Button>
+
+            <div style={{ padding: 16, paddingBottom: 150 }}>{ipfsHash}</div>
+          </Route>
+          <Route path="/ipfsdown">
+            <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
+              <Input
+                value={ipfsDownHash}
+                placeHolder="IPFS hash (like QmadqNw8zkdrrwdtPFK1pLi8PPxmkQ4pDJXY8ozHtz6tZq)"
+                onChange={e => {
+                  setIpfsDownHash(e.target.value);
+                }}
+              />
+            </div>
+            <Button
+              style={{ margin: 8 }}
+              loading={sending}
+              size="large"
+              shape="round"
+              type="primary"
+              onClick={async () => {
+                console.log("DOWNLOADING...", ipfsDownHash);
+                setDownloading(true);
+                setIpfsContent();
+                const result = await getFromIPFS(ipfsDownHash); // addToIPFS(JSON.stringify(yourJSON))
+                if (result && result.toString) {
+                  setIpfsContent(result.toString());
+                }
+                setDownloading(false);
+              }}
+            >
+              Download from IPFS
+            </Button>
+
+            <pre style={{ padding: 16, width: 500, margin: "auto", paddingBottom: 150 }}>{ipfsContent}</pre>
+          </Route>
+          <Route path="/debugcontracts">
             <Contract
-              name="Vendor"
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-              contractConfig={contractConfig}
-            />
-            <Contract
-              name="YourToken"
+              name="YourCollectible"
               signer={userSigner}
               provider={localProvider}
               address={address}
@@ -817,20 +919,6 @@ function App(props) {
           blockExplorer={blockExplorer}
         />
         {faucetHint}
-      </div>
-
-      <div style={{ marginTop: 32, opacity: 0.5 }}>
-        Created by <Address value={"Your...address"} ensProvider={mainnetProvider} fontSize={16} />
-      </div>
-
-      <div style={{ marginTop: 32, paddingBottom: 128, opacity: 0.5 }}>
-        <a
-          target="_blank"
-          style={{ padding: 32, color: "#000" }}
-          href="https://github.com/austintgriffith/scaffold-eth"
-        >
-          🍴 Fork me!
-        </a>
       </div>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
