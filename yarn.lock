@@ -1353,6 +1353,7 @@
   version "0.2.4"
   resolved "https://registry.yarnpkg.com/@eth-optimism/hardhat-ovm/-/hardhat-ovm-0.2.4.tgz#1ffe114e341296703cce17006e120ea4107fcb97"
   integrity sha512-lfDADd++qg2F9CLNQ5lctGcPlQB3gDe8BsYXu8B72SOJCzOlnfYiS96N/JErG/YpLoLyT2fVPmXCIIl0ogU9ow==
+
   dependencies:
     node-fetch "^2.6.1"
 
@@ -1477,6 +1478,7 @@
     mcl-wasm "^0.7.1"
     merkle-patricia-tree "^4.2.2"
     rustbn.js "~0.2.0"
+
 
 "@ethersproject/abi@5.0.0-beta.153":
   version "5.0.0-beta.153"
@@ -2354,6 +2356,7 @@
   version "2.1.8"
   resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-etherscan/-/hardhat-etherscan-2.1.8.tgz#e206275e96962cd15e5ba9148b44388bc922d8c2"
   integrity sha512-0+rj0SsZotVOcTLyDOxnOc3Gulo8upo0rsw/h+gBPcmtj91YqYJNhdARHoBxOhhE8z+5IUQPx+Dii04lXT14PA==
+
   dependencies:
     "@ethersproject/abi" "^5.1.2"
     "@ethersproject/address" "^5.0.2"
@@ -2364,6 +2367,7 @@
     semver "^6.3.0"
 
 "@nomiclabs/hardhat-waffle@^2.0.1":
+
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@nomiclabs/hardhat-waffle/-/hardhat-waffle-2.0.1.tgz#5d43654fba780720c5033dea240fe14f70ef4bd2"
   integrity sha512-2YR2V5zTiztSH9n8BYWgtv3Q+EL0N5Ltm1PAr5z20uAY4SkkfylJ98CIqt18XFvxTD5x4K2wKBzddjV9ViDAZQ==
@@ -4086,6 +4090,7 @@ antd@4.16.0:
     rc-util "^5.13.1"
     scroll-into-view-if-needed "^2.2.25"
     warning "^4.0.3"
+
 
 antlr4ts@^0.5.0-alpha.4:
   version "0.5.0-alpha.4"
@@ -7032,6 +7037,7 @@ cross-fetch@^3.0.4:
   integrity sha512-1eAtFWdIubi6T4XPy6ei9iUFoKpUkIF971QLN8lIvvvwueI65+Nw5haMNKUwfJxabqlIIDODJKGrQ66gxC0PbQ==
   dependencies:
     node-fetch "2.6.1"
+
 
 cross-spawn@7.0.3, cross-spawn@^7.0.0, cross-spawn@^7.0.2:
   version "7.0.3"
@@ -10867,6 +10873,7 @@ hardhat@2.8.0:
     stacktrace-parser "^0.1.10"
     "true-case-path" "^2.2.1"
     tsort "0.0.1"
+
     uuid "^8.3.2"
     ws "^7.4.6"
 
@@ -21023,6 +21030,7 @@ uuid@^3.3.2, uuid@^3.3.3, uuid@^3.4.0:
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
 uuid@^8.3.0, uuid@^8.3.2:
+
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==

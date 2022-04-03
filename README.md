@@ -8,7 +8,6 @@
 
 💬 Meet other builders working on this challenge and get help in the [Challenge 0 telegram](https://t.me/+Y2vqXZZ_pEFhMGMx)!!!
 
----
 
 # Checkpoint 0: 📦 Install 📚
 
@@ -51,8 +50,6 @@ yarn deploy
 
 📱 Open http://localhost:3000 to see the app
 
----
-
 # Checkpoint 1: ⛽️  Gas & Wallets 👛
 
 > ⛽️ You'll need to get some funds from the faucet for gas. 
@@ -73,7 +70,6 @@ yarn deploy
 
 > 👨🏻‍🚒 When you close the incognito window, the account is gone forever. Burner wallets are great for local development but you'll move to more permanent wallets when you interact with public networks.
 
----
 
 # Checkpoint 2: 🖨 Minting 
 
@@ -104,7 +100,7 @@ yarn deploy
 
 📝 If you want to make frontend edits, open `App.jsx` in `packages/react-app/src`.
 
----
+> Now you are ready to run the `yarn verify --network your_network` command to verify your contracts on etherscan 🛰
 
 # Checkpoint 3: 💾 Deploy it! 🛰
 
@@ -134,7 +130,6 @@ yarn deploy
 
 > 💬 Hint: You can set the `defaultNetwork` in `hardhat.config.js` to `Rinkeby` OR you can `yarn deploy --network rinkeby`. 
 
----
 
 # Checkpoint 4: 🚢 Ship it! 🚁
 
@@ -223,3 +218,4 @@ https://testnets.opensea.io/assets/0xc2839329166d3d004aaedb94dde4173651babccf/1
 > 💬 Meet other builders working on this challenge in the [Challenge 0 telegram channel](https://t.me/+Y2vqXZZ_pEFhMGMx)!!!
 
 > 👉 Problems, questions, comments on the stack? Post them to the [🏗 scaffold-eth developers chat](https://t.me/joinchat/F7nCRK3kI93PoCOk)
+

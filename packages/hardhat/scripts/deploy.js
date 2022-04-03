@@ -58,7 +58,7 @@ const main = async () => {
    LibraryName: **LibraryAddress**
   });
   */
-
+  
   //If you want to verify your contract on tenderly.co (see setup details in the scaffold-eth README!)
   /*
   await tenderlyVerify(
@@ -202,6 +202,7 @@ const tenderlyVerify = async ({ contractName, contractAddress }) => {
     );
   }
 };
+
 
 main()
   .then(() => process.exit(0))

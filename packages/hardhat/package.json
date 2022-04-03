@@ -46,3 +46,4 @@
     "verify": "hardhat etherscan-verify --api-key QIS23DM6Q6ZUUU8KXPQ57UC6SFPYAKMBCC"
   }
 }
+
