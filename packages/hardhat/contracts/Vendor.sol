@@ -1,5 +1,5 @@
-pragma solidity 0.8.4;
 // SPDX-License-Identifier: MIT
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./YourToken.sol";
@@ -76,8 +76,7 @@ contract Vendor is Ownable {
 
         // emit the event
         emit SellTokens(msg.sender, tokenAmountToSell, amountOfETHToTransfer);
-
-        //return amountOfETHToTransfer; 
+ 
       }
 
 }
