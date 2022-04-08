@@ -6,7 +6,7 @@ contract ExampleExternalContract {
   bool public completed;
 
   function complete() public payable {
-    completed = true;
+    complete = true;
   }
 
 }
